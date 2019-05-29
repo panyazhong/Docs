@@ -1,0 +1,219 @@
+JavaScript数据类型
+  7种数据类型
+    a、原始类型     ------     本身不可改变
+      Null        => null
+      Undefined   => undefined
+      Number      => 整数、浮点数、特殊值（-Infinity, Infinity, NaN）
+      Boolean     => true or false
+      String      => 一串表示文本值得字符序列
+      Symbol      => 一种实例是唯一且不可改变的数据类型
+    b、对象类型
+      Object      => Object Array Function
+
+  内存空间：栈内存和堆内存
+    栈内存：
+      存储的值大小固定
+      空间小
+      可以直接操作其保存的值，运行效率高
+      由系统自动分配存储空间
+    由于栈内存的空间大小固定  因而原始类型不可变
+
+    引用类型
+    堆内存：
+      存储的值大小不定，可动态调整
+      空间较大，运行效率低
+      无法直接操作其内部存储，使用引用地址读取
+      通过代码进行分配空间
+    引用类型存储在堆内存中，它在栈中存储了一个固定长度的地址指向堆内存中的值
+
+    比较：
+      原始类型直接比较值大小  值相等则返回true
+      引用类型比较，会比它们的引用地址
+
+    值传递和引用传递
+      ECMAScript中所有的函数的参数都是按值传递的
+
+  null 和 undefined
+    null 表示为空   转为数值是0
+    undefined 即此处应有值但未定义   转为数值是NaN
+
+  Symbol
+    每个从Symbol返回的symbol值都是唯一的，一个symbol值能作为对象属性的标识符。这是该数据类型仅有的目的
+
+    特性：
+      独一无二
+        直接使用Symbol()创建symbol对象，可选用一个字符串进行描述，当参数为对象时，将调用对象的toString()方法
+        let sym1 = Symbol()  // Symbol()
+        let sym2 = Symbol('hello') // Symbol(hello)
+        let sym3 = Symbol('hello') // Symbol(hello)
+        let sym4 = Symbol({name: 'dapan'}) // Symbol([object Object])
+
+        sym2 === sym3     false
+        sym2 == sym3      false
+
+        let sym5 = Symbol.for('test')  => 创建一个新的Symbol
+        let sym6 = Symbol.for('test')  => 返回参数为test这个Symbol
+
+        sym5 === sym6     true
+        sym5 == sym6      true
+
+        typeof Symbol() === 'symbol'
+
+      Symbol应用场景
+        应用一：防止XSS   JSON中不能存储Symbol类型的对象
+        应用二：私有属性
+          Symbol类型不可枚举 可以在类中模拟私有属性
+
+          const priviateField = Symbol()
+          class myClass {
+            constructor() {
+              this[priviateField] = 'hello'
+            }
+
+            setField(val) {
+              this[priviateField] = val
+            }
+
+            getFiled() {
+              return this[priviateField]
+            }
+          }
+        应用三：防止属性污染
+          用Symbol作为属性名可以保证不会出现同名属性
+
+  Number类型
+    精度丢失
+      0.1 + 0.2 的时候二进制计算发生了精度丢失 导致转为十进制的时候与预计结果不同
+
+    IEEE 754
+      包含一组是熟的二进制表示法   三部分组成  符号位  指数位  尾数位
+      JavaScript使用的是64位双精度浮点数编码，所以他的符号位占一位，指数位占11位，尾数位占52位
+
+      符号位  标识正负的   1 为 负 ， 0 为 正
+      指数位  存储科学计数法的指数
+      尾数位  存储科学计数法后的有效数字
+
+      所以我们通常看到的二进制，其实是计算机实际存储的尾数位
+
+  JavaScript能表示的最大数字
+    指数位 能表示的最大数字  1023
+    尾数位 能表达的最大数字即尾数位都为1
+
+    所以最大数字是   1.111... * 2^1023  => Number.MAX_VALUE
+
+  最大的安全数字
+    Number.MAX_SAFE_INTEGER  1.111 * 2^52
+
+  引用数据类型
+    Array
+    Date
+    RegExp
+    Function
+
+    包装类型  => 基本类型的包装类型
+
+    Boolean String Number
+
+    使用new操作符创建的引用类型的实例，在执行流离开当前作用域之前都一直保存在内存中，而基本类型只存在于一行代码的执行瞬间，然后立即销毁，意味着我们不能再运行时为基本类型添加属性和方法
+
+    例：
+    var name = 'dapan'
+    name.age = 23
+
+    console.log(name.age) ======> undefined
+
+    装箱和拆箱
+
+      装箱转换：把基本类型转为对应的包装类型
+      拆箱操作：把引用类型转为基本类型
+
+      每当我们操作一个基本类型时，后台会自动创建一个包装类型，从而我们能调用一些属性和方法
+        var name = 'hhh'
+        var name2 = name.substring(2)
+        实际发生的过程
+          创建一个String的包装类型
+          在实例上调用substring方法
+          销毁实例
+
+      我们在使用基本数据类型时会自动进行装箱和拆箱操作
+
+      从引用类型到基本类型的转换，会遵循ECMAScript的toPrimitive原则，一般会调用引用类型的valueOf 和 toString方法，你也可以直接写toPrimitive方法，一般转换成不同类型的值遵循的原则不同
+        例如：
+          引用类型转为Number类型，先调用valueOf，再调用toString
+          引用类型转为String类型，先调用toString，再调用valueOf
+
+        若valueOf和toString方法都不存在，或者没有返回的基本类型，抛出TypeError异常
+
+        const obj3 = {
+          valueOf: () => {
+            console.log('valueOf');
+            return {}
+          },
+          toString: () => {
+            console.log('toString')
+            return {}
+        }
+
+        console.log(obj3 - 1)
+        // valueOf
+        // toString
+        // TypeError
+
+    类型转换
+      类型转换规则
+
+      if语句和逻辑语句
+        在if语句和逻辑语句中，如果只有单个变量，会先将变量转为Boolean值，以下几种情况会被转换为false
+          null,
+          undefined
+          ''
+          NaN
+          0
+          false
+        其他均会转为true
+
+      各种数学运算符
+        在做各种非Number类型运用（- * /）时，会先将非Number类型转为Number类型
+        1 - true // 0
+        1 - null // 1
+        1 * undefined // NaN
+        1 - {} // NaN
+        2 * ['5'] //10
+
+        +是个例外，执行+运算符时
+        一侧为String类型，被识别为字符串拼接，将另一侧转为字符串类型
+        一侧为Number类型，另一侧为原始类型，则将原始类型转换为Number类型
+        一侧为Number类型，另一侧为引用类型，将引用类型和Number类型转换成字符串后拼接
+
+      NaN   与其他类型比较一直返回false（包括他自己）
+
+      Boolean
+        Boolean和其他类型比较，Boolean首先转换为Number类型
+
+        null和undefined与false比较    false会首先转换为0  所以null != false   undefined != false
+
+      String和Number
+        String和Number比较   将String转为Number
+
+      null和undefined
+        null == undefined 值为true，除此以外，null，undefined和其他的值比较均为false
+        null == undefined // true
+        null == '' //false
+        null == 0 //false
+        null == false // false
+        undefined == '' // false
+        undefined == 0 // false
+        undefined == false // false
+
+      原始类型和引用类型
+        原始类型和引用类型比较的时候，对象会依照ToPrimitive规则转换为原始类型
+        '[object Object]' == {} // true
+        '1,2,3' == [1, 2, 3] // true
+
+        [] == ![] // true
+        !优先级高于 ==，所以![]转为false，然后将false转为0，原始类型和引用类型比较时，引用类型转为原始类型，所以[]转为0，因此 [] == ![]
+
+  判断数据类型的方法
+    typeof 返回string Boolean undefined number symbol object function
+    instanceof  但是instanceof不能检测基本数据类型
+    toString
