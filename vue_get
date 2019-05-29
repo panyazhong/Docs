@@ -1,0 +1,10 @@
+1、vue路由跳转时新旧路由的状态变化
+    1.新路由 beforeCreate
+    2.新路由 created
+    3.新路由 beforeMount
+    4.旧路由 beforeDestory
+    5.旧路由 destoryed
+    6.新路由 mounted
+  因此在使用vue EnentBus时 涉及到路由跳转的  在旧路由的beforeDestory or destoryed 中$emit 事件
+  在新路由的created $on 事件
+  eventBus 的  $on先于$emit定义
