@@ -30,46 +30,9 @@ TCP/IP通信传输流
       发送端 ----->(ACK)接收端
   负责域名解析的DNS，位于应用层，提供了域名到IP地址之间的解析服务
   
-```java
-
-package com.qyf404.learn.maven;
-
-import org.junit.After;
-
-import org.junit.Assert;
-
-import org.junit.Before;
-
-import org.junit.Test;
-
-public class AppTest {
-
-private App app;
-
-@Before
-
-public void setUp() {app = new App();}
-
-@Test
-
-public void testAdd() throws InterruptedException {
-
-int a = 1;
-
-int b = 2;
-
-int result = app.add(a, b);
-
-Assert.assertEquals(a + b, result);
-
+```JavaScript
+function test() {
+  var name = 'hh'
+  console.log(name)
 }
-
-@After
-
-public void tearDown() throws Exception {
-
-}
-
-}
-
 ```
