@@ -91,6 +91,7 @@ HTTP协议方法：
 使用Cookie的状态管理
 
 ##第三章   HTTP报文内的HTTP信息
+
 HTTP报文：
 
 * 定义：用于HTTP协议交互的信息
