@@ -90,7 +90,7 @@ HTTP协议方法：
 
 使用Cookie的状态管理
 
-##HTTP报文内的HTTP信息
+## HTTP报文内的HTTP信息
 
 HTTP报文：
 
