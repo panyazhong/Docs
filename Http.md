@@ -519,4 +519,165 @@ HTTP首部字段将定义成缓存代理和非缓存代理的行为，分为2种
 - Transfer-Encoding
 - Upgrade
 
- 	
+### HTTP/1.1通用首部字段
+
+通用首部字段是指，请求报文和响应报文双方都会使用的首部
+
+#### Cache-Control
+
+操作缓存的工作机制
+
+指令操作是可选的，多个指令之间通过“,”分隔。首部字段Cache-Control的指令可用于请求及响应时
+
+	Cache-Control: private, max-age=0, no-cache
+	
+- Cache-Control指令一览
+
+可用的指令按请求和响应分类如下所示
+
+缓存请求指令
+
+|指令|参数|说明|
+|---|---|---|
+|no-cache|无|强制向源服务器再次验证|
+|no-store|无|不缓存请求或响应的任何内容|
+|max-age=[秒]|必需|响应的最大Age值|
+|max-stale=[秒]|可省略|接收已过期的响应|
+|min-fresh=[秒]|必需|期望在指定时间内响应仍有效|
+|no-transform|无|代理不可更改媒体类型|
+|only-if-cached|无|从缓存获取资源|
+|cache-extension|-|新指令标记（token）|
+
+缓存响应指令
+
+|指令|参数|说明|
+|---|---|---|
+|public|无|可向任意方提供响应的缓存|
+|private|可省略|仅向特定用户返回响应|
+|no-cache|可省略|缓存前必须先去人其有效性|
+|no-store|无|不缓存请求或响应的任何内容|
+|no-transform|无|代理不可更改媒体类型|
+|must-revalidate|无|可缓存但必须再向源服务器进行确认|
+|proxy-revalidate|无|要求中间缓存服务器对缓存的响应有效性在进行确认|
+|max-age=[秒]|必需|响应的最大Age值|
+|s-maxage=[秒]|必需|公共缓存服务器响应的最大Age值|
+|cache-extension|-|新指令标记（token）|
+
+#####表示是否能缓存的指令
+
+public指令
+
+	Cache-Control: public
+
+当指定使用public指令时，表明其他用户也可利用缓存
+
+private指令
+
+	Cache-Control: private
+	
+响应只能特定的用户作为对象
+
+no-cache指令
+
+	Cache-Control: no-cache
+	
+目的是为了防止从缓存中返回过期的资源
+
+客户端发送的请求中如果包含no-cache指令，表示客户端将不会接收缓存过的响应
+
+服务器返回的响应中如果包含no-cache指令，表示缓存服务器不能对资源进行缓存
+
+	Cache-Control: no-cache=Location
+	
+响应指令可以设置参数值，若有参数则不能缓存
+
+#####控制可执行缓存的对象的指令
+
+no-store指令
+	
+	Cache-Control: no-store
+
+暗示请求或响应中包含机密文件。该指令规定缓存不能再本地存储请求或响应的任一部分
+
+#####指定缓存期限和认证的指令
+
+s-maxage指令
+
+	Cache-Control: s-maxage=604800（单位：秒）
+
+指令功能与max-age相同，不同点是s-maxage指令只适用于供多位用户使用的公共缓存服务器，当使用s-maxage指令后，忽略对Expires首部字段及max-age指令的处理
+
+max-age指令
+
+	Cache-Control: max-age=604800（单位：秒）
+	
+当客户端发送的请求包含max-age，如果缓存时间小于指定时间，那么客户端接收缓存的资源，当max-age=0时，缓存服务器将请求转发给源服务器。
+
+当服务器返回的响应包含max-age，缓存服务器将会不对资源的有效性再作确认，而max-age数值代表资源保存为缓存的最长时间
+
+min-fresh指令
+
+	Cache-Control: min-fresh=69（单位：秒）
+
+min-fresh要求缓存服务器返回至少还未指定时间的缓存资源
+
+max-stale指令
+
+	Cache-Control: max-stale=3600（单位：秒）
+	
+max-stale可只是缓存资源，即使过期也照常接收
+
+only-if-cached指令
+	
+	Cache-Control: only-if-cached
+	
+only-if-cached表示客户端只有在缓存服务器本地缓存目标资源的情况下才会要求其返回，若请求缓存服务器的本地缓存无反应，返回状态码504 Gateway Timeout
+
+must-revalidate指令
+
+	Cache-Control: must-revalidate
+
+使用must-revalidate指令，代理会向源服务器再次验证即将返回的响应缓存目前是否仍然有效
+
+使用了must-revalidate指令将会忽略请求的max-stale指令
+
+proxy-revalidate指令
+
+	Cache-Control: proxy-revalidate
+	
+proxy-revalidate指令要求所有的缓存服务器在接收到客户端带有该指令的请求返回相应之前，必须再次验证缓存有效性
+
+no-transform指令
+
+	Cache-Control: no-transform
+	
+使用no-transform指令规定无论在请求还是响应中，缓存都不能改变实体主体的媒体类型
+
+防止缓存或代理压缩图片等类似操作
+
+#####Cache-Conrtrol扩展
+
+cache-extension token
+
+	Cache-Control: private, community="UCI"
+	
+通过cache-extension标记（token），可以扩展Cache-Control首部字段内的指令
+
+#### Connection
+
+Connection首部字段具有如下两个作用：
+
+- 控制不再转发给代理的首部字段
+- 管理持久连接
+
+控制不再转发给代理的首部字段
+
+	Connection: 不再转发的首部字段名
+	
+管理持久连接
+
+	Connection: close
+	
+	Connection: Keep-Alive
+	
+旧的HTTP版本协议想要维持持久连接，需要知道Connection首部字段的值为Keep-Alive
