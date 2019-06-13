@@ -681,3 +681,224 @@ Connection首部字段具有如下两个作用：
 	Connection: Keep-Alive
 	
 旧的HTTP版本协议想要维持持久连接，需要知道Connection首部字段的值为Keep-Alive
+
+#### Date
+
+表明HTTP报文创建的时间
+
+	Date: Tue, 03 Jul 2012 04:40:40 GMT
+	
+#### Pragma
+
+是HTTP/1.1之前的遗留字段，与HTTP/1.0向后兼容
+
+	Pragma: no-cache
+	
+通用首部字段，但仅在客户端发送。要求所有的中间服务器不返回缓存资源
+
+如果服务器都以HTTP/1.1为基础  那则以Cache-Control: no-cache 表示 不接收缓存的资源。但并不是所有的中间服务器都使用HTTP/1.1  因此发送的请求都会包含
+
+	Cache-Control: no-cache
+	Pragram: no-chche
+	
+#### Trailer
+
+首部字段Trailer会事先说明在报文主体后记录了哪些字段
+
+#### Transfer-Encoding
+
+传输报文主体时采用的编码方式
+
+#### Upgrade
+
+用于检测HTTP协议及其他协议是否可使用更高的版本进行通信，参数可指定一个完全不同的通信规则
+
+首部字段使用Upgrade时，必须额外指定Connection: Upgrade
+
+首部字段有Upgrade的时候   服务器可用101 Switching Protocols状态码作为返回
+
+#### Via
+
+追踪客户端和服务器之间请求和响应的传输路径
+
+报文经过代理和网关时，会在Via字段中添加自身服务器的信息，然后再转发。
+
+经常和Trace方法一起使用
+
+#### Warning
+
+告知用户一些与缓存相关的问题的警告
+
+	Warning: [警告码][警告的主机：端口号]”[警告的内容]“（[日期时间]）  日期时间可省略
+	
+警告码
+
+|警告码|警告内容|说明|
+|----|---|---|
+|110|Response is Stale（响应已过期）|代理返回已过期的资源|
+|111|Revaidation failed（再验证失败）|代理再验证资源有效性时失效|
+|112|Disonnection operation（断开连接操作）|代理和互联网连接被故意切断|
+|113|Heuristic Expiration（试探性过期）|响应的试用期超过24小时（有效缓存的设定时间大于24小时的情况下）|
+|199|Miscellaneous warning（杂项警告）|任意的警告内容|
+|214|Transformation applied（使用了转换）|代理对内容编码或媒体类型等执行了某些处理|
+|299|Miscellaneous persistent warning（持久杂项警告）|任意的警告内容|
+
+### 请求首部字段
+
+请求首部字段是从客户端往服务器端发送请求报文中所使用的字段
+
+#### Accept
+
+	Accept: text/html, applucation/xhtml+xml, application/xml; q=0
+	
+Accept首部字段可通知服务器，用户代理能够处理的媒体类型以及媒体类型的优先级 可使用type/subtype这种格式
+
+- 文本文件
+	
+	text/html,text/plain,text/css ...
+
+- 图片文件
+
+	img/jepg, image/gif, image/png ...
+	
+- 视频文件
+
+	video/mpeg, video/quicktime ...
+	
+- 应用程序使用的二进制文件
+
+	application/octet-stream, application/zip ...
+	
+q来额外表示权重值 0-1之间  1为最大
+
+服务器优先返回权重最高的媒体类型
+
+#### Accept-Charset
+
+ Accept-Charset: iso-8859-5,unicode-1-1; q=0.8
+ 
+通知服务器用户代理支持的字符集及字符集的相对优先顺序
+
+该字段应用于内部协商机制的服务器驱动协商
+
+#### Accept-Encoding
+
+	Accept-Encoding: gzip, deflate
+	
+通知服务器用户代理支持的内容编码及内容编码的优先级
+
+- gzip
+	
+	由文件压缩程序gzip（GUN zip）生成的编码格式（RFC1952），采用Lenpel-Ziv算法（LZ77）及32位循环冗余校验（Cyclic Redundancy Check，简称CRC）
+	
+- compress
+
+	由UNIX文件压缩程序compress生成的编码格式，采用Lenpel-Ziv-Welch算法（LZW）
+	
+- deflate
+
+	组合使用zlib格式及由deflate压缩算法生成的编码格式
+	
+- idenity
+
+	不执行压缩或不会变化的默认编码格式
+	
+#### Accept-Language
+
+	Accept-language: zh-cn,zh;q=0.7,en-us,en;q=0.3
+	
+告知服务器用户代理能够处理的自然语言
+
+#### Authorization
+
+	Authorization: Basic dsdsdsdsds==
+	
+告知服务器，用户代理的认证信息
+
+#### Expect
+
+	Expect: 100-continue
+	
+客户端告知服务器期望出现的某种特定操作。因服务器无法理解客户端的期望作出回应而发生错误时，返回状态码417 Expection Failed
+
+#### From
+
+告知服务器使用用户代理的用户的电子邮件地址
+
+#### Host
+
+	Host: www.hackr.jp
+
+告知服务器请求的资源所处的互联网主机名和端口号。Host首部字段是唯一一个在HTTP/1.1协议中必须添加在请求内的首部字段
+
+#### If-Match
+
+形如If-xxx这样形式的请求首部字段，都可称为条件请求，服务器接收到附带条件的请求后，只有判断指定条件为true时，才会执行请求
+
+If-Match 告知服务器匹配资源所用的实体标记（ETag）值，若不匹配返回412 Precondition Failed
+
+还可以指定*为If-Match字段值，服务器将会忽略ETag值
+
+#### If-Modified-Since
+
+如果在If-Modified-Since字段指定的日期时间后，资源发生了更新，服务器就会接受请求。如果没有更新，则返回304 Not Modified
+
+#### If-None-Match
+
+与If-Macth相反的作用， 在If-None-Match与ETag字段值不一致时，可处理该请求
+
+在GET和HEAD方法中使用首部字段If-None-Match可获得最新的资源
+
+#### If-Range
+
+	If-Range: '123456'
+	
+告知服务器若指定的字段值（ETag值或者时间）和请求资源的ETag值或时间相一致，则作为范围请求处理。反正，返回全体资源
+
+#### If-Unmodified-Since
+
+	If-Unmodified-Since: Thu, 03 Jul 2012 00:00:00 GMT
+	
+与If-Modified-Since相反
+
+#### Max-Forwards
+
+	Max-Forwards: 10
+	
+通过Trace和OPTIONS方法，发送包含首部字段Max-Forwards的请求时，指定可经过的服务器最大数目
+
+#### Proxy-Authorization
+	
+	Proxy-Authorization: Basic dsfafafafeae
+
+接收到代理服务器发来的认证质询是，客户端发送包含首部字段Proxy-Authorization的请求，以告知服务器所需的认证信息，发生在客户端与代理之间
+
+#### Range
+
+	Range: bytes=5001-10000
+	
+接收到附带Range首部字段的请求的服务器，会在处理请求之后返回状态吗206 Partial Content的响应。无法处理范围请求是，则会返回状态码200 OK的响应及全部资源
+
+#### Referer
+
+	Referer: http://xxx
+	
+首部字段Referer告知服务器请求的原始资源的URL
+
+#### TE
+
+	TE: gzip, deflate; q=0.5
+
+告知服务器能够处理相应的传输编码方式及相对优先级，用于传输编码
+
+还可以指定伴随trailer字段的分块传输编码的方式。应用后者时，只需把trailers赋值给该字段值
+
+	TE: trailers
+	
+#### User-Agent
+
+用于传达浏览器的种类
+
+	User-Agent: Mozilla/5.0 xxxxx
+	
+会创建请求的浏览器和用户代理名称等信息传达给服务器。此外，如果请求经过代理，那么中间也可能被添加上代理服务器的名称
