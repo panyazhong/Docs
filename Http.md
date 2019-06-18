@@ -902,3 +902,331 @@ If-Match 告知服务器匹配资源所用的实体标记（ETag）值，若不�
 	User-Agent: Mozilla/5.0 xxxxx
 	
 会创建请求的浏览器和用户代理名称等信息传达给服务器。此外，如果请求经过代理，那么中间也可能被添加上代理服务器的名称
+
+### 响应首部字段
+
+由服务器向客户端返回报文中所使用的字段。用于补充响应的附加信息、服务器信息，以及对街护短的附加要求等。
+
+#### Accept-Ranges
+
+	Accept-Ranges: bytes
+	
+当不能处理范围请求时，Accept-Ranges: none
+
+告知用户是否能处理范围请求，以指定获取服务器某个部分的资源，指定字段值为bytes or none
+
+#### Age
+
+	Age: 600
+	
+告知客户端，源服务器在多久前创建了响应。
+
+若创建该响应的服务器时缓存服务器，Age值是指缓存后的响应再次发起认证到认证完成的时间值。代理创建响应时必须加上首部字段Age。
+
+#### ETag
+
+	ETag: "xxxx"
+	
+告知客户端实体标识，将资源以字符串形式作唯一性标识的方式。另外，当资源更新时，ETag值也需要更新
+
+##### 强ETag和弱ETag
+
+强ETag
+
+强ETag，不论实体发生多么细微的变化都会改变其值
+	
+	ETag: ”usagi-1234“
+	
+弱ETag
+
+弱ETag只用于提示资源是否相同。只有资源发生了根本改变，产生差异时才会改变ETag值。这时，会在字段值最开始处附加W/。
+
+	ETag: W/"usagi-1234"
+	
+#### Location
+
+	Location: http://xxxxx
+	
+使用首部字段Location可以将响应接收方引导至某个与请求URI位置不同的资源
+
+基本上，该字段会配合 3XX : Redirection 的响应，提供重定向的URI
+
+几乎所有浏览器在接收到包含Location首部字段的响应后，都会强制常识性的访问已提示的重定向资源
+
+#### Proxy-Authenticate
+
+	Proxy-Authenticate: Basic realm="Usagidesign Auth"
+	
+会把代理服务器所要求得认证信息发送给客户端，发生在客户端和代理之间
+
+#### Retry-After
+
+	Retry-After: 120
+	
+告知客户端在多久之后再次发送请求，主要配合503 Service Unavailable响应，或3XX响应一起使用。
+
+字段值可以是具体的时间或者创建响应后的秒数
+
+#### Server
+
+	Server: Apache/2.2.17（Unix）
+	
+告知客户端当前服务器上安装的HTTP服务器应用程序的信息
+
+#### Vary
+
+	Vary: Accept-Language
+	
+对缓存进行控制。
+
+从代理服务器接收到源服务器返回的包含Vary指定的响应之后，若要进行缓存，仅对请求中含有相同Vary的请求进行缓存。即对相同资源进行请求，但是由于Vary指定的首部字段不相同，因此需要向源服务器请求重新获取资源。
+
+#### WWW-Authenticate
+
+	WWW-Authenticate: Basic realm="Usagidesign Auth"
+	
+用于HTTP访问认证，告知客户端适用于访问请求URI所指定认证方案（Basic或Digest）和带参数提示的质询（chanllenge）
+
+### 实体首部字段
+
+包含在请求报文和响应报文中的实体部分所使用的首部，用于补充内容的更新时间等与实体相关的信息
+
+#### Allow
+	Allow: GET, HEAD
+	
+用于通知客户端能够支持Request-URI指定资源的所有HTTP方法，如果接收到不支持的HTTP方法，返回状态码405 Method Not Allowed。同时还会把所有能够支持的HTTP方法写入首部字段Allow后返回。
+
+#### Content-Encoding
+
+	Content-Encoding: gzip
+	
+告知客户端服务器对实体的主体部分宣统的内容编码方式
+
+-  gzip
+-  compress
+-  deflate
+-  identity
+
+#### Content-Length
+
+	Content-Length: 15000
+	
+表明实体主体部分的大小（单位是字节）。对实体主体进行内容编码时，不能再使用Content-Length首部字段
+
+#### Content-Location
+
+	Content-Location: http://www.hackr.jp/index-ja.html
+	
+给出与报文主体部分相对应的URI，Content-Location表示的是报文主体返回资源对应的URI
+
+#### Content-MD5
+
+	Content-Location: xxxxxxx
+	
+是一串由MD5算法生成的值，目的在于检查报文在传输过程中是否保持完整，以及确认其传输到达
+
+#### Content-Range
+
+	Content-Range: bytes 5001-10000/10000
+	
+针对范围请求，返回响应的Content-Range，告知客户端返回的实体的那个部分符合范围请求，字段值以字节为单位。
+
+#### Content-Type
+
+	Content-Type: text/html; charset=UTF-8
+	
+实体主体内的对象的媒体类型
+
+#### Expires
+
+	Expires: Wed, 04 Jul 2012 08:26:05 GMT
+	
+将资源失效日期告知客户端。缓存服务器在接收到含有首部自担Expires的响应后，会议缓存来应答，在Expires字段指定的时间之前，响应的副本会一直被保存。当超过指定的时间后，缓存服务器在请求发送过来时，会转向源服务器请求资源。
+
+当首部字段Cache-Control有指定max-age时，比起Expires，优先处理max-age指令
+
+#### Last-Modified
+
+	Last-Modified: xxxxx
+	
+指明资源最终修改的时间
+
+### 为Cookie服务的首部字段
+
+Cookie的工作机制是用户识别和状态管理
+
+Cookie的规格标准文档
+
+- 由网景公司颁布的规格标准
+
+	网景公司设计开发了Cookie
+
+- RFC2109
+
+- RFC2965
+
+- RFC6265
+
+为Cookie服务的首部字段
+
+|首部字段名|说明|首部类型|
+|---|---|---|
+|Set-Cookie|开始状态管理所使用的Cookie信息|响应首部字段|
+|Cookie|服务器接收到的Cookie信息|请求首部字段|
+
+#### Set-Cookie
+	
+	Set-Cookie: static=enable; expires=Tue, 05 Jul 2011 07:26:31
+
+当服务器准备开始管理客户端状态时，会事先告知各种信息，
+
+Set-Cookie字段属性
+
+|属性|说明|
+|---|---|
+|NAME=VALUE|赋予Cookie的名称和其值（必需项）|
+|expires=DATE|Cookie的有效期（若不明确指定则默认浏览器关闭前为止）|
+|path=PATH|将服务器上的文件目录作为Cookie的适用对象（若不指定则默认为文档所在的文件目录）|
+|domain=域名|作为Cookie适用对象的域名（若不指定则默认为创建Cookie的服务器的域名）|
+|Secure|仅在HTTPS安全通信时才会发送Cookie|
+|HttpOnly|加以限制，使Cookie不能被JavaScript脚本访问|
+
+##### expires 属性
+
+指定浏览器可发送的Cookie的有效期
+
+一旦Cookie从服务器发送到客户端，服务器端就不存在可以显示删除Cookie的方法，但可以通过覆盖已过期的Cookie，实现对客户端Cookie的实质性删除
+
+##### path属性
+
+指定Cookie的发送范围的文件目录
+
+##### domain属性
+
+通过domain属性指定的域名可做到与结尾匹配一致。
+
+##### secure属性
+
+限制Web页面仅在HTTPS安全连接是，才可以发送Cookie
+
+	Set-Cookie: name=value; secure
+	
+##### HttpOnly
+
+使JavaScript无法获取Cookie，主要目的是为了防止跨站脚本攻击对Cookie的信息获取
+
+	Set-Cookie: name=value; HttpOnly
+	
+#### Cookie
+
+	Cookie: status=enable
+	
+首部字段Cookie会告知服务器，当客户端想获得HTTP状态管理支持时，就会在请求中包含从服务器接收到的Cookie，接收到多个Cookie时，同样可以以多个Cookie形式发送
+
+### 其他首部字段
+
+HTTP首部字段可以自行扩展
+
+- X-Frame-Options
+- X-XSS-Protection
+- DNT
+- P3P
+
+#### X-Frame-Options
+
+	X-Frame-Options: DENY
+
+属于HTTP响应首部，用于控制网站内容在其他Web网站的Frame标签内的显示问题。其主要目的是为了网址点击劫持攻击
+
+有两个可指定的字段值
+	
+- DENY: 拒绝
+- SAMEORIGIN: 仅在同源域名下的页面匹配时许可
+
+#### X-XSS-Protection
+
+属于HTTP响应首部。针对跨站脚本攻击的一个对策，用于控制浏览器XSS防护机制的开关。
+
+可指定的字段值
+
+- 0：将XSS过滤设置成无效状态
+- 1：将XSS过滤设置成有效状态
+
+#### DNT
+
+	DNT: 1
+
+属于HTTP请求首部。DNT是Do Not Track的简称，意为拒绝个人信息被收集，是表示拒绝被精准广告追踪的一种方法。
+
+首部字段DNT可指定的字段值
+
+- 0：统一被追踪
+- 1：拒绝被追踪
+
+由于DNT的功能具备有效性，所以服务器需要对DNT做对应的支持
+
+#### P3P
+
+	P3P: CP="CAO DSP LAW xxxxxxxx"
+	
+属于响应首部，通过利用P3P(The Platform for Privacy Perferences，在线隐私偏好平台)技术，可以让Web网站上的个人隐私变成一种仅供程序可理解的形式，已达到保护用户隐私的目的
+
+要进行P3Pde设定，需要按照以下操作步骤进行
+
+* 步骤一：创建P3P隐私
+* 步骤二：创建P3P隐私对照文件后，保存命名在/w3c/p3p.xml
+* 步骤三：从P3P隐私中新建Compaict policies后，输出到HTTP响应中
+
+## 确保Web安全的HTTPS
+
+在HTTP协议中有可能存在信息窃听或者身份伪装等安全问题，使用HTTPS通信机制可以有效防止这些问题
+
+### HTTP的缺点
+
+HTTP的不足之处：
+
+- 通信使用明文（不加密），内容可能会被窃听
+- 不验证通信方的身份，因此有可能遭遇伪装
+- 无法证明报文的完整性，所以有可能已遭篡改
+
+#### 通信使用明文可能会被窃听
+
+HTTP报文使用明文（未经过加密的报文）方式发送
+
+- TCP/IP是可能被窃听的网络
+- 加密处理防止被窃听
+	
+	目前最普及的防止窃听保护信息的集中对策中，最普及的是加密技术。加密对象有以下几个：
+
+	1. 通信的加密
+		
+		HTTP协议中没有加密机制，但可以通过SSL（Secure Socket Layer，安全套接层）或TLS（Transport Layer Security，安全层传输协议）的组合使用，加密HTTP的通信内容
+		
+		用SSL建立安全通信西安路支行，就可以在这条线路上进行HTTP通信了。与SSL组合使用的HTTP被称为HTTPS（HTTP Secure，超文本传输安全协议）或HTTP over SSL
+	
+	2. 内容的加密
+
+		参与通信的内容本身的加密的方式，即把HTTP报文的所有内容进行加密处理
+
+#### 不验证通信方的身份就可能遭遇伪装
+
+HTTP协议中的请求和响应不会对通信方进行确认
+
+- 任何人都可以发起请求
+
+	在发送端的IP和端口号没有被Web服务器设定限制的情况下，服务器只要接收到请求变回返回一个响应
+	
+	HTTP下一的实现本身非常简单，不论是谁发送过来的请求都会返回响应，因此不确认通信方，会存在以下各种隐患
+	
+	- 无法确定请求发送至目标的Web服务器是否是按照真实意图返回的那台服务器。有可能是伪装的Web服务器
+	- 无法确定响应返回到的客户端是否是按真实意图接收的那个客户端，可能是伪装的客户端
+	- 无法确定正在通信的对方是否具有访问权限。因为某些Web服务器上保存着重要的信息，只想发给特定用户的通信的权限
+	- 无法确定请求来自何方，出自谁手
+	- 即使是无意义的请求也会照单全收。无法阻止海量请求下的DoS攻击（Denial of Service，拒绝服务攻击）
+- 查明对手的证书
+	
+	虽然HTTP无法确定通信方，但是SSL可以。SSL不仅提供加密处理，还使用了一种被称为证书的手段，可用于确认方。
+	
+	通过使用证书，以证明通信方就是意料之中的服务器，这对使用者个人来说，也减少了个人信息泄露的危险性
+	
+	客户端持有证书即可完成个人身份的确认，也可用于对Web网站的认证环节
